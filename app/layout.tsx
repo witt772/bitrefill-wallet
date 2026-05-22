@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Bitrefill Wallet Assistant',
   description: 'imToken + Bitrefill 钱包电商助手',
-  icons: { favicon: '/favicon.ico' },
+  icons: { icon: '/favicon.ico' },
 };
 
 export default function RootLayout({

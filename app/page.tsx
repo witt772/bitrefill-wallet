@@ -74,7 +74,7 @@ export default function Home() {
 
     setTimeout(() => {
       if (text.includes('亚') || text.includes('Amazon') || text.includes('卡') || text.includes('🛒')) {
-        const prod = BITREFILL_PRODUCTS;
+        const prod = BITREFILL_PRODUCTS[0];
         setCurrentOrder(prod);
         setMessages([...newMessages, 
           { role: 'assistant', text: `🤖 [Bitrefill Agent 解析成功] 已为您在货架检索到商品：${prod.name}，官方定价：${prod.price}。` },

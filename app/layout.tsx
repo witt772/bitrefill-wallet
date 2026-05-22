@@ -1,10 +1,8 @@
-import type { Metadata } from 'next';
 import './globals.css';
 
-export const metadata: Metadata = {
-  title: 'Bitrefill Wallet Assistant',
-  description: 'imToken + Bitrefill 钱包电商助手',
-  icons: { icon: '/favicon.ico' },
+export const metadata = {
+  title: 'imToken 10th AI Assistant',
+  description: 'Bitrefill Wallet Commerce Assistant',
 };
 
 export default function RootLayout({
@@ -13,8 +11,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh-CN">
-      <body>{children}</body>
+    <html lang="zh" className="dark">
+      <body className="bg-slate-900 text-slate-100 min-h-screen">{children}</body>
     </html>
   );
 }

@@ -11,8 +11,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh" className="dark">
-      <body className="bg-slate-900 text-slate-100 min-h-screen">{children}</body>
+    <html lang="zh">
+      <body>
+        {children}
+      </body>
     </html>
   );
 }

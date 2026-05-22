@@ -8,10 +8,12 @@ export default function BitrefillWalletAssistant() {
   const [keystore, setKeystore] = useState('');
   const [addresses, setAddresses] = useState<any[]>([]);
   const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const createWallet = async () => {
+    setLoading(true);
     try {
-      setStatus('正在加载 WASM...');
+      setStatus('正在加载 Token Core WASM...');
       await init();
 
       const ks = tcx.create_keystore(JSON.stringify({
@@ -22,15 +24,18 @@ export default function BitrefillWalletAssistant() {
 
       setKeystore(ks);
       setStep('wallet');
-      setStatus('✅ 钱包创建成功！（测试密码: 123456）');
-      alert('测试钱包已创建！请勿在真实环境使用此 Demo 输入真实助记词。');
+      setStatus('钱包创建成功');
+      alert('✅ 测试钱包已创建！密码：123456\n\n请勿在真实环境中使用此 Demo！');
     } catch (err: any) {
       alert('创建失败: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const deriveAddresses = async () => {
     if (!keystore) return;
+    setLoading(true);
     try {
       await init();
       const result = tcx.derive_accounts(JSON.stringify({
@@ -47,70 +52,103 @@ export default function BitrefillWalletAssistant() {
       setStatus('地址派生成功');
     } catch (err: any) {
       alert('派生失败: ' + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const openBitrefill = () => {
-    window.open('https://www.bitrefill.com/', '_blank');
-  };
+  const openBitrefill = () => window.open('https://www.bitrefill.com/', '_blank');
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
-      <div className="max-w-4xl mx-auto p-8">
-        <h1 className="text-5xl font-bold mb-2 text-center bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent">
-          🛍️ Bitrefill Wallet Assistant
-        </h1>
-        <p className="text-center text-xl mb-10 text-gray-400">让你的钱包成为电商助手 • Powered by Token Core tcx-wasm</p>
+    <div className="min-h-screen bg-[#0a0a0a] text-white">
+      {/* Header */}
+      <div className="border-b border-white/10 bg-black/50 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-gradient-to-br from-emerald-400 to-cyan-400 rounded-xl flex items-center justify-center text-xl">🛍️</div>
+            <div>
+              <div className="font-semibold text-xl">Bitrefill Assistant</div>
+              <div className="text-xs text-emerald-400">Powered by Token Core</div>
+            </div>
+          </div>
+          <div className="text-sm text-gray-400">imToken 10th Anniversary</div>
+        </div>
+      </div>
 
+      <div className="max-w-4xl mx-auto px-6 py-12">
         {step === 'home' && (
-          <div className="text-center">
+          <div className="text-center pt-20">
+            <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-3xl flex items-center justify-center text-6xl mb-8">
+              🛒
+            </div>
+            <h1 className="text-5xl font-bold mb-4">让你的钱包<br />成为电商助手</h1>
+            <p className="text-xl text-gray-400 mb-12 max-w-md mx-auto">
+              使用官方 tcx-wasm 构建 • 一键连接 Bitrefill
+            </p>
+
             <button 
               onClick={createWallet}
-              className="bg-emerald-500 hover:bg-emerald-600 text-black font-bold text-2xl px-16 py-8 rounded-2xl transition"
+              disabled={loading}
+              className="w-full max-w-sm mx-auto bg-white text-black font-bold text-2xl py-8 rounded-3xl hover:bg-gray-200 transition disabled:opacity-70"
             >
-              🚀 创建测试钱包并开始
+              {loading ? '加载中...' : '🚀 创建测试钱包'}
             </button>
-            <p className="mt-6 text-gray-500">使用官方 Token Core WASM 引擎</p>
+
+            <p className="mt-8 text-sm text-gray-500">测试密码：123456</p>
           </div>
         )}
 
         {step === 'wallet' && (
           <div className="space-y-8">
-            <div className="bg-zinc-900 p-8 rounded-3xl">
-              <h2 className="text-2xl mb-6">✅ 你的自托管钱包已就绪</h2>
+            {/* Wallet Card */}
+            <div className="bg-gradient-to-br from-zinc-900 to-black border border-white/10 rounded-3xl p-8">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <div className="text-emerald-400 text-sm">YOUR WALLET</div>
+                  <div className="text-2xl font-semibold mt-1">已就绪</div>
+                </div>
+                <div className="text-4xl">🔐</div>
+              </div>
+
               <button 
                 onClick={deriveAddresses}
-                className="bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-xl text-lg"
+                disabled={loading}
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 py-4 rounded-2xl text-lg font-medium transition"
               >
-                显示 ETH / BTC / TRON 地址
+                {loading ? '派生中...' : '显示多链地址'}
               </button>
 
               {addresses.length > 0 && (
                 <div className="mt-6 space-y-4">
-                  {addresses.map((a, i) => (
-                    <div key={i} className="bg-black p-4 rounded-xl break-all">
-                      <strong>{a.chain}：</strong> {a.address}
+                  {addresses.map((acc, i) => (
+                    <div key={i} className="bg-black/50 p-5 rounded-2xl border border-white/10">
+                      <div className="text-emerald-400 text-sm mb-1">{acc.chain}</div>
+                      <div className="font-mono text-sm break-all">{acc.address}</div>
                     </div>
                   ))}
                 </div>
               )}
             </div>
 
-            <div className="bg-zinc-900 p-8 rounded-3xl">
-              <h2 className="text-3xl mb-4">🛒 Bitrefill 电商助手</h2>
-              <p className="text-lg mb-8">从你的自托管钱包直接购买礼品卡、手机充值、eSIM 等</p>
-              
+            {/* Bitrefill Section */}
+            <div className="bg-zinc-900/70 border border-white/10 rounded-3xl p-8">
+              <h2 className="text-3xl font-semibold mb-3">🛍️ Bitrefill 电商助手</h2>
+              <p className="text-gray-400 mb-8 leading-relaxed">
+                在自托管钱包内直接购买礼品卡、手机充值、eSIM、游戏点卡等<br />
+                无需 KYC • 全球即时到账
+              </p>
+
               <button 
                 onClick={openBitrefill}
-                className="w-full bg-orange-500 hover:bg-orange-600 text-black font-bold text-2xl py-8 rounded-2xl transition"
+                className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-black font-bold text-2xl py-8 rounded-3xl transition"
               >
-                立即去 Bitrefill 购物
+                立即前往 Bitrefill 购物
               </button>
             </div>
 
-            <p className="text-center text-sm text-gray-500">
-              本 Demo 为 imToken 10 周年黑客松提交 · 请仅用于测试
-            </p>
+            <div className="text-center text-xs text-gray-500 pt-8">
+              Token Core tcx-wasm • 本 Demo 仅供 Hackathon 展示 • 请使用测试数据
+            </div>
           </div>
         )}
       </div>
